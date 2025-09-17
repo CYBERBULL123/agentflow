@@ -1,6 +1,7 @@
 
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -51,7 +52,7 @@ export default function LoginPage() {
   });
 
   const { isSubmitting } = form.formState;
-
+  
   const createUserProfile = async (user: UserCredential['user']) => {
     if (!user) return;
     const userRef = doc(db, 'users', user.uid);
@@ -80,14 +81,43 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
+    // Add additional scopes if needed
+    provider.addScope('email');
+    provider.addScope('profile');
+    
+    // Set custom parameters
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    
     try {
       const userCredential = await signInWithPopup(auth, provider);
       await createUserProfile(userCredential.user);
       toast({ title: 'Login Successful' });
     } catch (error: any) {
+      console.error('Google login error:', error);
+      let errorMessage = 'Google Login Failed';
+      
+      switch (error.code) {
+        case 'auth/configuration-not-found':
+          errorMessage = 'Google authentication is not configured properly. Please contact support.';
+          break;
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'Login cancelled by user.';
+          break;
+        case 'auth/popup-blocked':
+          errorMessage = 'Popup blocked. Please allow popups and try again.';
+          break;
+        case 'auth/unauthorized-domain':
+          errorMessage = 'This domain is not authorized for Google authentication.';
+          break;
+        default:
+          errorMessage = error.message || 'An error occurred during Google login.';
+      }
+      
       toast({
         title: 'Google Login Failed',
-        description: error.message,
+        description: errorMessage,
         variant: 'destructive',
       });
     }

@@ -90,14 +90,46 @@ export default function SignupPage() {
 
   const handleGoogleSignup = async () => {
     const provider = new GoogleAuthProvider();
+    // Add additional scopes if needed
+    provider.addScope('email');
+    provider.addScope('profile');
+    
+    // Set custom parameters
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    
     try {
       const userCredential = await signInWithPopup(auth, provider);
       await createUserProfile(userCredential.user);
       toast({ title: 'Account Created Successfully' });
     } catch (error: any) {
+      console.error('Google signup error:', error);
+      let errorMessage = 'Google Sign-up Failed';
+      
+      switch (error.code) {
+        case 'auth/configuration-not-found':
+          errorMessage = 'Google authentication is not configured properly. Please contact support.';
+          break;
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'Sign-up cancelled by user.';
+          break;
+        case 'auth/popup-blocked':
+          errorMessage = 'Popup blocked. Please allow popups and try again.';
+          break;
+        case 'auth/unauthorized-domain':
+          errorMessage = 'This domain is not authorized for Google authentication.';
+          break;
+        case 'auth/account-exists-with-different-credential':
+          errorMessage = 'An account already exists with this email address.';
+          break;
+        default:
+          errorMessage = error.message || 'An error occurred during Google sign-up.';
+      }
+      
       toast({
         title: 'Google Sign-up Failed',
-        description: error.message,
+        description: errorMessage,
         variant: 'destructive',
       });
     }
