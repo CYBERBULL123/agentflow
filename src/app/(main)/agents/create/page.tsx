@@ -1,6 +1,8 @@
+
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,17 +33,23 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { useAuth } from '@/hooks/use-auth';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const agentSchema = z.object({
   agentName: z.string().min(1, 'Agent name is required.'),
   agentDescription: z.string().min(1, 'Agent description is required.'),
-  suggestedTools: z.string(),
+  suggestedTools: z.string().optional(),
 });
 
 export default function CreateAgentPage() {
   const [prompt, setPrompt] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof agentSchema>>({
     resolver: zodResolver(agentSchema),
@@ -61,7 +69,7 @@ export default function CreateAgentPage() {
       });
       return;
     }
-    setIsLoading(true);
+    setIsGenerating(true);
     try {
       const result: CreateAgentOutput = await createAgentFromPrompt({ prompt });
       form.setValue('agentName', result.agentName);
@@ -79,15 +87,43 @@ export default function CreateAgentPage() {
         variant: 'destructive',
       });
     }
-    setIsLoading(false);
+    setIsGenerating(false);
   };
   
-  const onSubmit = (values: z.infer<typeof agentSchema>) => {
-    console.log(values);
-    toast({
-      title: 'Agent Saved',
-      description: `Agent "${values.agentName}" has been successfully saved.`,
-    });
+  const onSubmit = async (values: z.infer<typeof agentSchema>) => {
+    if (!user) {
+        toast({
+            title: 'Not authenticated',
+            description: 'You must be logged in to save an agent.',
+            variant: 'destructive',
+        });
+        return;
+    }
+    setIsSaving(true);
+    try {
+        const agentsCollection = collection(db, 'users', user.uid, 'agents');
+        await addDoc(agentsCollection, {
+            name: values.agentName,
+            description: values.agentDescription,
+            tools: values.suggestedTools?.split(',').map(t => t.trim()).filter(Boolean) || [],
+            createdAt: serverTimestamp(),
+            workflows: 0,
+        });
+
+        toast({
+          title: 'Agent Saved',
+          description: `Agent "${values.agentName}" has been successfully saved.`,
+        });
+        router.push('/agents');
+    } catch (error) {
+        console.error('Error saving agent:', error);
+        toast({
+            title: 'Save Failed',
+            description: 'Could not save the agent to the database.',
+            variant: 'destructive',
+        });
+    }
+    setIsSaving(false);
   };
 
   return (
@@ -115,8 +151,8 @@ export default function CreateAgentPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button onClick={handleGenerate} disabled={isLoading} className="w-full">
-                {isLoading ? (
+              <Button onClick={handleGenerate} disabled={isGenerating || isSaving} className="w-full">
+                {isGenerating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <Wand2 className="mr-2 h-4 w-4" />
@@ -185,8 +221,9 @@ export default function CreateAgentPage() {
                   />
                 </CardContent>
                 <CardFooter className="flex justify-end">
-                  <Button type="submit">
-                    <Save className="mr-2 h-4 w-4" /> Save Agent
+                  <Button type="submit" disabled={isSaving || isGenerating}>
+                    {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                     Save Agent
                   </Button>
                 </CardFooter>
               </Card>
