@@ -70,7 +70,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.push('/login');
   };
 
-  if (loading || (!user && !pathname.startsWith('/login') && !pathname.startsWith('/signup'))) {
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup');
+
+  if (loading && !isAuthPage) {
     return (
         <div className="flex min-h-screen items-center justify-center bg-background">
             <div className="flex flex-col items-center gap-4">
@@ -80,6 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         </div>
     );
   }
+
 
   return (
     <AuthContext.Provider value={{ user, userData, loading, signOut }}>
