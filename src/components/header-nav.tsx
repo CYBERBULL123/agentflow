@@ -160,8 +160,8 @@ export function HeaderNav() {
                         <Link
                           href={href}
                           className={cn(
-                            "group grid h-auto w-full items-center justify-start gap-1 rounded-md bg-background p-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50",
-                            isActive(href) && "bg-accent text-accent-foreground"
+                            "group grid h-auto w-full items-center justify-start gap-1 rounded-md bg-background p-4 text-sm font-medium transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+                            isActive(href) && "bg-muted/70"
                           )}
                         >
                           <div className="flex items-center gap-2 font-medium">
@@ -198,8 +198,8 @@ export function HeaderNav() {
                         <Link
                           href={href}
                           className={cn(
-                            "group grid h-auto w-full items-center justify-start gap-1 rounded-md bg-background p-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50",
-                            isActive(href) && "bg-accent text-accent-foreground"
+                            "group grid h-auto w-full items-center justify-start gap-1 rounded-md bg-background p-4 text-sm font-medium transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+                            isActive(href) && "bg-muted/70"
                           )}
                         >
                           <div className="flex items-center gap-2 font-medium">
@@ -237,7 +237,7 @@ export function HeaderNav() {
         {/* Right Side Actions */}
         <div className="flex items-center gap-3 min-w-0">
           {/* Create Agent Button */}
-          <Button size="sm" className="hidden md:flex h-9 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+          <Button size="sm" className="hidden md:flex h-9">
             <Plus className="h-4 w-4 mr-2" />
             Create Agent
           </Button>
@@ -308,8 +308,8 @@ export function HeaderNav() {
                         href={href}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent",
-                          isActive(href) && "bg-accent text-accent-foreground"
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-muted/50",
+                          isActive(href) && "bg-muted/70"
                         )}
                       >
                         <Icon className="h-4 w-4" />
@@ -344,8 +344,8 @@ export function HeaderNav() {
                         href={href}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={cn(
-                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-accent",
-                          isActive(href) && "bg-accent text-accent-foreground"
+                          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all hover:bg-muted/50",
+                          isActive(href) && "bg-muted/70"
                         )}
                       >
                         <Icon className="h-4 w-4" />
