@@ -1,9 +1,12 @@
+
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Activity,
   Bot,
   CircleDollarSign,
+  Loader2,
   Workflow,
 } from 'lucide-react';
 import {
@@ -30,6 +33,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useAuth } from '@/hooks/use-auth';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const chartData = [
   { name: 'Jan', total: Math.floor(Math.random() * 20) + 10 },
@@ -43,7 +49,7 @@ const chartData = [
   { name: 'Sep', total: Math.floor(Math.random() * 20) + 10 },
   { name: 'Oct', total: Math.floor(Math.random() * 20) + 10 },
   { name: 'Nov', total: Math.floor(Math.random() * 20) + 10 },
-  { name: 'Dec', total: Math.floor(Math.random() * 20) + 10 },
+  { name_of_month: 'Dec', total: Math.floor(Math.random() * 20) + 10 },
 ];
 
 const recentActivities = [
@@ -85,6 +91,32 @@ const recentActivities = [
   ];
 
 export default function DashboardPage() {
+  const { user, userData } = useAuth();
+  const [agentCount, setAgentCount] = useState<number | null>(null);
+  const [workflowCount, setWorkflowCount] = useState(0); // Assuming static for now
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchStats() {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const agentsCollection = collection(db, 'users', user.uid, 'agents');
+        const querySnapshot = await getDocs(agentsCollection);
+        setAgentCount(querySnapshot.size);
+        // Add workflow fetching logic here when available
+      } catch (error) {
+        console.error("Failed to fetch stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchStats();
+  }, [user]);
+
+
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
@@ -96,10 +128,16 @@ export default function DashboardPage() {
             <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$4,523.89</div>
-            <p className="text-xs text-muted-foreground">
-              +20.1% from last month
-            </p>
+            {userData ? (
+              <>
+                <div className="text-2xl font-bold">{userData.credits}</div>
+                <p className="text-xs text-muted-foreground">
+                  Available credits to use
+                </p>
+              </>
+            ) : (
+               <Loader2 className="h-6 w-6 animate-spin" />
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -108,10 +146,14 @@ export default function DashboardPage() {
             <Bot className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+23</div>
-            <p className="text-xs text-muted-foreground">
-              +18.1% from last month
-            </p>
+             {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
+              <>
+                <div className="text-2xl font-bold">{agentCount}</div>
+                <p className="text-xs text-muted-foreground">
+                  Total created agents
+                </p>
+              </>
+             )}
           </CardContent>
         </Card>
         <Card>
@@ -120,10 +162,14 @@ export default function DashboardPage() {
             <Workflow className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+12</div>
-            <p className="text-xs text-muted-foreground">
-              +19% from last month
-            </p>
+             {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : (
+                <>
+                    <div className="text-2xl font-bold">{workflowCount}</div>
+                     <p className="text-xs text-muted-foreground">
+                       Total active workflows
+                    </p>
+                </>
+             )}
           </CardContent>
         </Card>
         <Card>

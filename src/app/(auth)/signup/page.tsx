@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Logo } from '@/components/logo';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,13 +23,15 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import {
   createUserWithEmailAndPassword,
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
+  UserCredential,
 } from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 
@@ -53,6 +54,19 @@ export default function SignupPage() {
 
   const { isSubmitting } = form.formState;
 
+  const createUserProfile = async (user: UserCredential['user'], fullName?: string) => {
+    if (!user) return;
+    const userRef = doc(db, 'users', user.uid);
+    await setDoc(userRef, {
+      uid: user.uid,
+      email: user.email,
+      displayName: fullName || user.displayName,
+      photoURL: user.photoURL,
+      createdAt: serverTimestamp(),
+      credits: 50, // Initial credits for new users
+    }, { merge: true });
+  };
+
   const onSubmit = async (values: z.infer<typeof signupSchema>) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -63,6 +77,7 @@ export default function SignupPage() {
       await updateProfile(userCredential.user, {
         displayName: values.fullName,
       });
+      await createUserProfile(userCredential.user, values.fullName);
       toast({ title: 'Account Created Successfully' });
     } catch (error: any) {
       toast({
@@ -76,7 +91,8 @@ export default function SignupPage() {
   const handleGoogleSignup = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const userCredential = await signInWithPopup(auth, provider);
+      await createUserProfile(userCredential.user);
       toast({ title: 'Account Created Successfully' });
     } catch (error: any) {
       toast({
