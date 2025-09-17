@@ -134,20 +134,20 @@ export function HeaderNav() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-16 items-center justify-between px-4">
         {/* Logo */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 min-w-0">
           <Logo />
-          <Badge variant="secondary" className="hidden md:flex text-xs bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/30">
+          <Badge variant="secondary" className="hidden md:flex items-center text-xs bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/30">
             <Sparkles className="w-3 h-3 mr-1" />
             AI-Powered
           </Badge>
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-6 flex-1 justify-center max-w-2xl mx-8">
           <NavigationMenu>
-            <NavigationMenuList>
+            <NavigationMenuList className="gap-2">
               {/* Platform Menu */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent">
@@ -219,12 +219,12 @@ export function HeaderNav() {
           </NavigationMenu>
 
           {/* Search Bar */}
-          <div className="relative w-full max-w-sm">
+          <div className="relative w-full max-w-md ml-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search agents, workflows..."
-              className="pl-10 pr-4 bg-background/50 border-muted-foreground/20 focus:border-primary/50 transition-colors"
+              className="pl-10 pr-12 h-9 bg-background/50 border-muted-foreground/20 focus:border-primary/50 transition-colors"
             />
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2 hidden md:flex items-center gap-1">
               <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
@@ -235,15 +235,15 @@ export function HeaderNav() {
         </div>
 
         {/* Right Side Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 min-w-0">
           {/* Create Agent Button */}
-          <Button size="sm" className="hidden md:flex bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+          <Button size="sm" className="hidden md:flex h-9 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
             <Plus className="h-4 w-4 mr-2" />
             Create Agent
           </Button>
           
           {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative">
+          <Button variant="ghost" size="sm" className="relative h-9 w-9 p-0">
             <Bell className="h-4 w-4" />
             <Badge 
               variant="destructive" 
@@ -254,7 +254,7 @@ export function HeaderNav() {
           </Button>
 
           {/* Credits Display */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-lg border">
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 h-9 bg-muted/50 rounded-lg border">
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium">
               {userData?.creditsUsed || 0}/{userData?.creditsTotal || 50}
@@ -263,12 +263,14 @@ export function HeaderNav() {
           </div>
 
           {/* User Navigation */}
-          <UserNav />
+          <div className="flex items-center">
+            <UserNav />
+          </div>
 
           {/* Mobile Menu */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="sm" className="lg:hidden">
+              <Button variant="ghost" size="sm" className="lg:hidden h-9 w-9 p-0">
                 <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>
