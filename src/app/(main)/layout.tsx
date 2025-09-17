@@ -1,3 +1,5 @@
+
+'use client';
 import { type ReactNode } from 'react';
 import {
   SidebarProvider,
@@ -13,8 +15,15 @@ import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/user-nav';
 import { NavMenu } from '@/components/nav-menu';
 import { Logo } from '@/components/logo';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function MainLayout({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  
+  if (!user) {
+    return null;
+  }
+
   return (
     <SidebarProvider>
       <Sidebar>
